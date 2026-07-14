@@ -2,7 +2,7 @@ import { DEVICE_PRESETS } from "../lib/devices";
 import { buildFilename } from "../lib/filename";
 import type { CaptureMode, CaptureResponse, PageRect } from "../lib/messages";
 import { isMessage } from "../lib/messages";
-import { clearDeviceMetrics, contentSize, screenshot, setDeviceMetrics, withDebugger } from "./cdp";
+import { clearDeviceMetrics, expandViewport, screenshot, setDeviceMetrics, withDebugger } from "./cdp";
 
 interface ActiveTab {
   id: number;
@@ -42,16 +42,30 @@ async function captureViewport(tab: ActiveTab): Promise<string[]> {
 
 async function captureFullPage(tab: ActiveTab): Promise<string[]> {
   return withDebugger(tab.id, async () => {
-    const size = await contentSize(tab.id);
-    const dataUrl = await screenshot(tab.id, { x: 0, y: 0, ...size, scale: 1 });
-    return [await download(dataUrl, "full-page", tab.url)];
+    try {
+      await expandViewport(tab.id, { deviceScaleFactor: 1, mobile: false });
+      const dataUrl = await screenshot(tab.id);
+      return [await download(dataUrl, "full-page", tab.url)];
+    } finally {
+      await clearDeviceMetrics(tab.id).catch(() => {
+        // Detaching the debugger clears emulation anyway.
+      });
+    }
   });
 }
 
 async function captureElement(tab: ActiveTab, rect: PageRect): Promise<string[]> {
   return withDebugger(tab.id, async () => {
-    const dataUrl = await screenshot(tab.id, { ...rect, scale: 1 });
-    return [await download(dataUrl, "element", tab.url)];
+    try {
+      // Expand so elements below the fold are on the rendered surface.
+      await expandViewport(tab.id, { deviceScaleFactor: 1, mobile: false });
+      const dataUrl = await screenshot(tab.id, { ...rect, scale: 1 });
+      return [await download(dataUrl, "element", tab.url)];
+    } finally {
+      await clearDeviceMetrics(tab.id).catch(() => {
+        // Detaching the debugger clears emulation anyway.
+      });
+    }
   });
 }
 
@@ -60,18 +74,12 @@ async function captureDevices(tab: ActiveTab): Promise<string[]> {
     try {
       const filenames: string[] = [];
       for (const preset of DEVICE_PRESETS) {
+        // Render at the preset's real viewport first so responsive layout
+        // applies, then grow to full height for the capture.
         await setDeviceMetrics(tab.id, preset);
         await reflowDelay(400);
-        const size = await contentSize(tab.id);
-        // The emulated deviceScaleFactor already applies to the render;
-        // clip scale stays 1 or the factor would be applied twice.
-        const dataUrl = await screenshot(tab.id, {
-          x: 0,
-          y: 0,
-          width: preset.width,
-          height: size.height,
-          scale: 1
-        });
+        await expandViewport(tab.id, preset);
+        const dataUrl = await screenshot(tab.id);
         filenames.push(await download(dataUrl, "device", tab.url, preset.name));
       }
       return filenames;
