@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Page Snap fixture</title>
+  <style>
+    body { margin: 0; }
+    /* Bands scale with viewport width so responsive reflow is observable. */
+    .band { height: 50vw; }
+    .band:nth-child(odd) { background: #dbe7f5; }
+    .band:nth-child(even) { background: #f5e7db; }
+    #target {
+      position: absolute;
+      top: 120px;
+      left: 40px;
+      width: 300px;
+      height: 200px;
+      background: #e07020;
+    }
+  </style>
+</head>
+<body>
+  <div class="band"></div>
+  <div class="band"></div>
+  <div class="band"></div>
+  <div class="band"></div>
+  <div class="band"></div>
+  <div id="target"></div>
+</body>
+</html>

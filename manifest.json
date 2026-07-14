@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Page Snap — Full Page Screenshot & Element Capture",
+  "short_name": "Page Snap",
+  "version": "1.0.0",
+  "description": "Capture the visible viewport, the entire page, a single element, or mobile/tablet/desktop sizes. One click, PNG in your downloads.",
+  "permissions": ["activeTab", "debugger", "downloads", "scripting", "storage"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon/icon16.png",
+      "32": "icon/icon32.png",
+      "48": "icon/icon48.png",
+      "128": "icon/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "icon/icon16.png",
+    "32": "icon/icon32.png",
+    "48": "icon/icon48.png",
+    "128": "icon/icon128.png"
+  }
+}

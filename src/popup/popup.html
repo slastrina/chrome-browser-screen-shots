@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Page Snap</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <img src="icon/icon32.png" alt="" width="20" height="20">
+    <h1>Page Snap</h1>
+  </header>
+
+  <form id="modes">
+    <label class="mode">
+      <input type="radio" name="mode" value="viewport" checked>
+      <span class="mode-body">
+        <span class="mode-name">Visible viewport</span>
+        <span class="mode-hint">Just what you see right now</span>
+      </span>
+    </label>
+    <label class="mode">
+      <input type="radio" name="mode" value="full-page">
+      <span class="mode-body">
+        <span class="mode-name">Full page</span>
+        <span class="mode-hint">The entire scrollable page, seamless</span>
+      </span>
+    </label>
+    <label class="mode">
+      <input type="radio" name="mode" value="element">
+      <span class="mode-body">
+        <span class="mode-name">Pick an element</span>
+        <span class="mode-hint">Hover to highlight, click to capture</span>
+      </span>
+    </label>
+    <label class="mode">
+      <input type="radio" name="mode" value="device">
+      <span class="mode-body">
+        <span class="mode-name">Device sizes</span>
+        <span class="mode-hint">Mobile 390 · Tablet 820 · Desktop 1440</span>
+      </span>
+    </label>
+  </form>
+
+  <button id="capture" type="button">Capture</button>
+  <p id="status" hidden></p>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
