@@ -97,7 +97,11 @@ h1 {
 .row {
   display: flex;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
+}
+
+.row:has(> [hidden]:only-child) {
+  display: none;
 }
 
 .field[hidden] {
@@ -131,24 +135,63 @@ h1 {
   font-size: 12.5px;
 }
 
-#capture {
-  width: 100%;
+.zap {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.zap:hover {
+  background: var(--hover);
+}
+
+.zap input {
+  margin-top: 2px;
+  accent-color: var(--accent);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.actions button {
   padding: 9px 0;
   border: 0;
   border-radius: 8px;
-  background: var(--accent);
-  color: var(--accent-fg);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
 }
 
-#capture:hover:enabled {
+#capture {
+  flex: 2;
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+#copy {
+  flex: 1;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.actions button:hover:enabled {
   filter: brightness(1.08);
 }
 
-#capture:disabled {
-  opacity: 0.6;
+#copy:hover:enabled {
+  background: var(--hover);
+}
+
+.actions button:disabled {
+  opacity: 0.5;
   cursor: default;
 }
 

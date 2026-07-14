@@ -5,6 +5,7 @@ export interface CaptureContext {
   mode: CaptureMode;
   extension: "png" | "jpg" | "pdf";
   deviceName?: string;
+  themeName?: string;
   timestamp: Date;
 }
 
@@ -21,6 +22,6 @@ function hostSlug(url: string): string {
 /** `example-com--full-page--2026-07-15T08-30-00.png` */
 export function buildFilename(ctx: CaptureContext): string {
   const stamp = ctx.timestamp.toISOString().slice(0, 19).replace(/:/g, "-");
-  const parts = [hostSlug(ctx.url), ctx.mode, ctx.deviceName, stamp].filter(Boolean);
+  const parts = [hostSlug(ctx.url), ctx.mode, ctx.deviceName, ctx.themeName, stamp].filter(Boolean);
   return `${parts.join("--")}.${ctx.extension}`;
 }

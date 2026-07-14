@@ -33,6 +33,13 @@ describe("buildFilename", () => {
       .toBe("example-com--device--2026-07-15T08-30-00.pdf");
   });
 
+  it("includes the theme name when present", () => {
+    expect(buildFilename({ url: "https://example.com", mode: "full-page", extension: "png", themeName: "dark", timestamp: stamp }))
+      .toBe("example-com--full-page--dark--2026-07-15T08-30-00.png");
+    expect(buildFilename({ url: "https://example.com", mode: "device", extension: "jpg", deviceName: "mobile", themeName: "light", timestamp: stamp }))
+      .toBe("example-com--device--mobile--light--2026-07-15T08-30-00.jpg");
+  });
+
   it("never produces path separators or colons", () => {
     const name = buildFilename({ url: "https://a.b/c://d\\e", mode: "element", extension: "png", timestamp: stamp });
     expect(name).not.toMatch(/[/\\:]/);

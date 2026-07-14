@@ -29,7 +29,13 @@ interface CaptureResult {
 }
 
 type CaptureHook = {
-  __pageSnapCapture: (mode: string, format?: string, pdfLayout?: string) => Promise<CaptureResult>;
+  __pageSnapCapture: (
+    mode: string,
+    format?: string,
+    pdfLayout?: string,
+    theme?: string,
+    zapFirst?: boolean
+  ) => Promise<CaptureResult>;
 };
 
 function pngSize(path: string): { width: number; height: number } {
@@ -63,12 +69,13 @@ async function newestDownloads(count: number): Promise<string[]> {
 async function capture(
   mode: string,
   format = "png",
-  pdfLayout = "single"
+  pdfLayout = "single",
+  theme = "none"
 ): Promise<{ filenames: string[]; paths: string[] }> {
   const before = await completedCount();
   const result = await worker.evaluate(
-    ([m, f, l]) => (globalThis as unknown as CaptureHook).__pageSnapCapture(m!, f, l),
-    [mode, format, pdfLayout]
+    ([m, f, l, t]) => (globalThis as unknown as CaptureHook).__pageSnapCapture(m!, f, l, t),
+    [mode, format, pdfLayout, theme]
   );
   if (!result.ok) {
     throw new Error(result.error);
@@ -208,6 +215,46 @@ test("pdf device capture in multiple layout produces one PDF per size", async ()
   }
 });
 
+test("light + dark theme captures a differing pair", async () => {
+  const { filenames, paths } = await capture("full-page", "png", "single", "both");
+  expect(filenames).toHaveLength(2);
+  expect(filenames.some((f) => /--full-page--light--/.test(f))).toBe(true);
+  expect(filenames.some((f) => /--full-page--dark--/.test(f))).toBe(true);
+
+  const [a, b] = paths.map((p) => readFileSync(p));
+  expect(pngSize(paths[0]!)).toEqual(pngSize(paths[1]!));
+  expect(a!.equals(b!)).toBe(false); // the fixture restyles under dark scheme
+});
+
+test("zap hides picked elements for the capture and restores them after", async () => {
+  const page = context.pages()[0]!;
+  await page.bringToFront();
+  const { paths: plainPaths } = await capture("full-page");
+
+  const before = await completedCount();
+  const result = await worker.evaluate(
+    ([m]) => (globalThis as unknown as CaptureHook).__pageSnapCapture(m!, "png", "single", "none", true),
+    ["full-page"]
+  );
+  expect(result.ok).toBe(true);
+
+  // Zap #target (at 40,120 sized 300x200), then hit the toolbar's capture.
+  await page.mouse.move(190, 220);
+  await page.mouse.move(191, 221);
+  await page.mouse.click(191, 221);
+  await expect(page.locator("#target")).toBeHidden();
+  await page.click("#page-snap-zap-capture");
+
+  const [zappedPath] = await newestDownloads(before + 1);
+  const zapped = readFileSync(zappedPath!);
+  const plain = readFileSync(plainPaths[0]!);
+  expect(pngSize(zappedPath!)).toEqual(pngSize(plainPaths[0]!));
+  expect(zapped.equals(plain)).toBe(false); // the orange target is missing
+
+  // The element comes back once the capture is saved.
+  await expect(page.locator("#target")).toBeVisible();
+});
+
 test("popup renders all modes and persists the selection", async () => {
   const extensionId = new URL(worker.url()).hostname;
   const popup = await context.newPage();
@@ -215,12 +262,23 @@ test("popup renders all modes and persists the selection", async () => {
 
   await expect(popup.locator(".mode")).toHaveCount(4);
 
-  // The PDF layout dropdown appears only for PDF + device sizes.
+  // The PDF layout dropdown appears only for PDF + multi-shot captures.
   await expect(popup.locator("#pdf-layout-field")).toBeHidden();
   await popup.locator("#format").selectOption("pdf");
   await expect(popup.locator("#pdf-layout-field")).toBeHidden();
   await popup.locator('input[value="device"]').check();
   await expect(popup.locator("#pdf-layout-field")).toBeVisible();
+
+  // Copy is for single-image captures only.
+  await expect(popup.locator("#copy")).toBeDisabled();
+  await popup.locator('input[value="viewport"]').check();
+  await expect(popup.locator("#copy")).toBeEnabled();
+  await popup.locator("#theme").selectOption("both");
+  await expect(popup.locator("#copy")).toBeDisabled();
+  await popup.locator("#theme").selectOption("none");
+  await popup.locator("#zap").check();
+  await expect(popup.locator("#copy")).toBeDisabled();
+  await popup.locator("#zap").uncheck();
 
   // The iokig.com link is in plain view.
   await expect(popup.locator('footer a[href="https://www.iokig.com"]')).toBeVisible();
@@ -228,10 +286,13 @@ test("popup renders all modes and persists the selection", async () => {
   await popup.locator('input[value="full-page"]').check();
   await expect(popup.locator("#pdf-layout-field")).toBeHidden();
   await popup.locator("#format").selectOption("jpg");
+  await popup.locator("#theme").selectOption("dark");
   await popup.locator("#capture").click();
 
   await expect
-    .poll(() => worker.evaluate(() => chrome.storage.local.get(["lastMode", "lastFormat", "lastPdfLayout"])))
-    .toEqual({ lastMode: "full-page", lastFormat: "jpg", lastPdfLayout: "single" });
+    .poll(() =>
+      worker.evaluate(() => chrome.storage.local.get(["lastMode", "lastFormat", "lastPdfLayout", "lastTheme"]))
+    )
+    .toEqual({ lastMode: "full-page", lastFormat: "jpg", lastPdfLayout: "single", lastTheme: "dark" });
   await popup.close();
 });

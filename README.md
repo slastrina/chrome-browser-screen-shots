@@ -21,8 +21,19 @@ mode and a format, and a PNG, JPG, or PDF lands in your downloads.
   not scaled
 
 **Three output formats:** PNG (lossless), JPG, or PDF. PDFs embed the actual
-capture, and device-size captures can produce either one three-page PDF or a
-separate file per size.
+capture, and multi-shot captures can produce either one multi-page PDF or a
+separate file per shot.
+
+**And a few tricks other screenshot extensions don't have:**
+
+- **Zap elements first** — click cookie banners, ads, or chat widgets to
+  remove them before the capture; they come back as soon as the file is saved
+- **Light + dark** — emulate `prefers-color-scheme` and capture the light
+  theme, the dark theme, or a matching pair in one go
+- **Copy to clipboard** — put a PNG of the viewport or full page straight on
+  the clipboard instead of downloading
+- **Keyboard shortcuts** — Alt+Shift+1 (viewport), Alt+Shift+2 (full page),
+  Alt+Shift+3 (element picker), using your last-used format settings
 
 Product page: **[iokig.com/page-snap](https://www.iokig.com/page-snap)**
 
@@ -44,11 +55,17 @@ To run it from source in the meantime:
 ## Use
 
 - Click the extension icon to open the panel
-- Pick a mode, pick a format (PNG, JPG, or PDF), and hit **Capture**
-- For PDF + device sizes, choose one three-page file or one file per size
+- Pick a mode, a format (PNG, JPG, or PDF), and optionally a theme
+  (as is / light / dark / light + dark), then hit **Capture** — or **Copy**
+  to send a PNG to the clipboard instead
+- Check **Zap elements first** to click parts of the page away before the
+  shot (Enter or the ✓ button captures, Esc cancels, everything is restored
+  afterwards)
+- For PDFs of multi-shot captures, choose one multi-page file or a file per
+  shot
 - Files download automatically as
-  `<site>--<mode>--<timestamp>.<ext>` (device captures add the preset name) —
-  no save dialogs
+  `<site>--<mode>[--<device>][--<theme>]--<timestamp>.<ext>` — no save
+  dialogs
 - **Pick an element** closes the panel and hands you a highlighter: hover any
   element, click to capture it, or press <kbd>Esc</kbd> to cancel. A ✓ badge
   on the toolbar icon confirms the save.

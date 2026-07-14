@@ -51,16 +51,39 @@
         <option value="pdf">PDF</option>
       </select>
     </label>
-    <label class="field" id="pdf-layout-field" hidden>
-      <span class="field-name">PDF output</span>
-      <select id="pdf-layout">
-        <option value="single" selected>One file, 3 pages</option>
-        <option value="multiple">One file per size</option>
+    <label class="field">
+      <span class="field-name">Theme</span>
+      <select id="theme">
+        <option value="none" selected>As is</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+        <option value="both">Light + dark</option>
       </select>
     </label>
   </div>
 
-  <button id="capture" type="button">Capture</button>
+  <div class="row">
+    <label class="field" id="pdf-layout-field" hidden>
+      <span class="field-name">PDF output</span>
+      <select id="pdf-layout">
+        <option value="single" selected>One file, page per capture</option>
+        <option value="multiple">One file per capture</option>
+      </select>
+    </label>
+  </div>
+
+  <label class="zap">
+    <input type="checkbox" id="zap">
+    <span class="mode-body">
+      <span class="mode-name">Zap elements first</span>
+      <span class="mode-hint">Click banners or ads to remove them before capturing</span>
+    </span>
+  </label>
+
+  <div class="actions">
+    <button id="capture" type="button">Capture</button>
+    <button id="copy" type="button" title="Copy the capture to the clipboard as PNG">Copy</button>
+  </div>
   <p id="status" hidden></p>
 
   <footer>

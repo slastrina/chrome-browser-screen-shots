@@ -7,7 +7,8 @@ const options = {
   entryPoints: [
     { in: "src/background/background.ts", out: "background" },
     { in: "src/popup/popup.ts", out: "popup" },
-    { in: "src/content/picker.ts", out: "picker" }
+    { in: "src/content/picker.ts", out: "picker" },
+    { in: "src/content/zapper.ts", out: "zapper" }
   ],
   bundle: true,
   format: "esm",

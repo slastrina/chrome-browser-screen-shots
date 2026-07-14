@@ -88,6 +88,13 @@ export interface Clip {
   scale: number;
 }
 
+/** Emulate prefers-color-scheme; null clears the override. */
+export async function setColorScheme(tabId: number, scheme: "light" | "dark" | null): Promise<void> {
+  await send(tabId, "Emulation.setEmulatedMedia", {
+    features: [{ name: "prefers-color-scheme", value: scheme ?? "" }]
+  });
+}
+
 export interface ImageEncoding {
   format: "png" | "jpeg";
   quality?: number;

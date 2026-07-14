@@ -2,9 +2,23 @@
   "manifest_version": 3,
   "name": "Page Snap — Full Page Screenshot & Element Capture",
   "short_name": "Page Snap",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Capture the visible viewport, the entire page, an element, or mobile/tablet/desktop sizes. Save as PNG, JPG, or PDF in one click.",
-  "permissions": ["activeTab", "debugger", "downloads", "scripting", "storage"],
+  "permissions": ["activeTab", "clipboardWrite", "debugger", "downloads", "scripting", "storage"],
+  "commands": {
+    "capture-viewport": {
+      "suggested_key": { "default": "Alt+Shift+1" },
+      "description": "Capture the visible viewport"
+    },
+    "capture-full-page": {
+      "suggested_key": { "default": "Alt+Shift+2" },
+      "description": "Capture the full page"
+    },
+    "capture-element": {
+      "suggested_key": { "default": "Alt+Shift+3" },
+      "description": "Pick an element to capture"
+    }
+  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
