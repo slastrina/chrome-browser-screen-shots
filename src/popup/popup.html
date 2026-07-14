@@ -42,8 +42,30 @@
     </label>
   </form>
 
+  <div class="row">
+    <label class="field">
+      <span class="field-name">Format</span>
+      <select id="format">
+        <option value="png" selected>PNG</option>
+        <option value="jpg">JPG</option>
+        <option value="pdf">PDF</option>
+      </select>
+    </label>
+    <label class="field" id="pdf-layout-field" hidden>
+      <span class="field-name">PDF output</span>
+      <select id="pdf-layout">
+        <option value="single" selected>One file, 3 pages</option>
+        <option value="multiple">One file per size</option>
+      </select>
+    </label>
+  </div>
+
   <button id="capture" type="button">Capture</button>
   <p id="status" hidden></p>
+
+  <footer>
+    <a href="https://www.iokig.com" target="_blank" rel="noopener noreferrer">more software at iokig.com</a>
+  </footer>
 
   <script type="module" src="popup.js"></script>
 </body>

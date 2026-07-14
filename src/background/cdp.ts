@@ -88,10 +88,16 @@ export interface Clip {
   scale: number;
 }
 
-export async function screenshot(tabId: number, clip?: Clip): Promise<string> {
+export interface ImageEncoding {
+  format: "png" | "jpeg";
+  quality?: number;
+}
+
+export async function screenshot(tabId: number, encoding: ImageEncoding, clip?: Clip): Promise<string> {
   const result = await send<ScreenshotResult>(tabId, "Page.captureScreenshot", {
-    format: "png",
+    format: encoding.format,
+    ...(encoding.format === "jpeg" && encoding.quality !== undefined ? { quality: encoding.quality } : {}),
     ...(clip ? { clip } : {})
   });
-  return `data:image/png;base64,${result.data}`;
+  return `data:image/${encoding.format};base64,${result.data}`;
 }

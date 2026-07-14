@@ -1,5 +1,10 @@
 export type CaptureMode = "viewport" | "full-page" | "element" | "device";
 
+export type CaptureFormat = "png" | "jpg" | "pdf";
+
+/** For PDF + device sizes: one multi-page file, or one file per size. */
+export type PdfLayout = "single" | "multiple";
+
 export interface PageRect {
   x: number;
   y: number;
@@ -10,6 +15,8 @@ export interface PageRect {
 export interface CaptureRequest {
   kind: "capture";
   mode: CaptureMode;
+  format: CaptureFormat;
+  pdfLayout: PdfLayout;
 }
 
 export interface ElementPicked {

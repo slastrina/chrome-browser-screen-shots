@@ -28,7 +28,9 @@ interface CaptureResult {
   error?: string;
 }
 
-type CaptureHook = { __pageSnapCapture: (mode: string) => Promise<CaptureResult> };
+type CaptureHook = {
+  __pageSnapCapture: (mode: string, format?: string, pdfLayout?: string) => Promise<CaptureResult>;
+};
 
 function pngSize(path: string): { width: number; height: number } {
   const buf = readFileSync(path);
@@ -58,9 +60,16 @@ async function newestDownloads(count: number): Promise<string[]> {
   );
 }
 
-async function capture(mode: string): Promise<{ filenames: string[]; paths: string[] }> {
+async function capture(
+  mode: string,
+  format = "png",
+  pdfLayout = "single"
+): Promise<{ filenames: string[]; paths: string[] }> {
   const before = await completedCount();
-  const result = await worker.evaluate((m) => (globalThis as unknown as CaptureHook).__pageSnapCapture(m), mode);
+  const result = await worker.evaluate(
+    ([m, f, l]) => (globalThis as unknown as CaptureHook).__pageSnapCapture(m!, f, l),
+    [mode, format, pdfLayout]
+  );
   if (!result.ok) {
     throw new Error(result.error);
   }
@@ -159,17 +168,70 @@ test("device capture produces one reflowed PNG per preset", async () => {
   expect(new Set(sizes.map((s) => s.height)).size).toBe(3);
 });
 
+test("jpg format downloads a JPEG with a .jpg name", async () => {
+  const { filenames, paths } = await capture("viewport", "jpg");
+  expect(filenames[0]).toMatch(/^localhost--viewport--.*\.jpg$/);
+  const bytes = readFileSync(paths[0]!);
+  expect([...bytes.subarray(0, 3)]).toEqual([0xff, 0xd8, 0xff]);
+});
+
+test("pdf format wraps a full-page capture in a single-page PDF", async () => {
+  const { filenames, paths } = await capture("full-page", "pdf");
+  expect(filenames).toEqual([expect.stringMatching(/^localhost--full-page--.*\.pdf$/)]);
+  const text = readFileSync(paths[0]!).toString("latin1");
+  expect(text.startsWith("%PDF-1.4")).toBe(true);
+  expect(text.split("/Subtype /Image").length - 1).toBe(1);
+});
+
+test("pdf device capture in single layout produces one three-page PDF", async () => {
+  const { filenames, paths } = await capture("device", "pdf", "single");
+  expect(filenames).toHaveLength(1);
+  expect(filenames[0]).toMatch(/^localhost--device--\d{4}.*\.pdf$/);
+  const text = readFileSync(paths[0]!).toString("latin1");
+  expect(text).toContain("/Count 3");
+  expect(text.split("/Subtype /Image").length - 1).toBe(3);
+  expect(text).toContain("/Width 1170");
+  expect(text).toContain("/Width 1640");
+  expect(text).toContain("/Width 1440");
+});
+
+test("pdf device capture in multiple layout produces one PDF per size", async () => {
+  const { filenames, paths } = await capture("device", "pdf", "multiple");
+  expect(filenames).toHaveLength(3);
+  for (const name of ["mobile", "tablet", "desktop"]) {
+    expect(filenames.some((f) => f.includes(`--device--${name}--`) && f.endsWith(".pdf"))).toBe(true);
+  }
+  for (const path of paths) {
+    const text = readFileSync(path).toString("latin1");
+    expect(text).toContain("/Count 1");
+    expect(text.split("/Subtype /Image").length - 1).toBe(1);
+  }
+});
+
 test("popup renders all modes and persists the selection", async () => {
   const extensionId = new URL(worker.url()).hostname;
   const popup = await context.newPage();
   await popup.goto(`chrome-extension://${extensionId}/popup.html`);
 
   await expect(popup.locator(".mode")).toHaveCount(4);
+
+  // The PDF layout dropdown appears only for PDF + device sizes.
+  await expect(popup.locator("#pdf-layout-field")).toBeHidden();
+  await popup.locator("#format").selectOption("pdf");
+  await expect(popup.locator("#pdf-layout-field")).toBeHidden();
+  await popup.locator('input[value="device"]').check();
+  await expect(popup.locator("#pdf-layout-field")).toBeVisible();
+
+  // The iokig.com link is in plain view.
+  await expect(popup.locator('footer a[href="https://www.iokig.com"]')).toBeVisible();
+
   await popup.locator('input[value="full-page"]').check();
+  await expect(popup.locator("#pdf-layout-field")).toBeHidden();
+  await popup.locator("#format").selectOption("jpg");
   await popup.locator("#capture").click();
 
   await expect
-    .poll(() => worker.evaluate(() => chrome.storage.local.get("lastMode")))
-    .toEqual({ lastMode: "full-page" });
+    .poll(() => worker.evaluate(() => chrome.storage.local.get(["lastMode", "lastFormat", "lastPdfLayout"])))
+    .toEqual({ lastMode: "full-page", lastFormat: "jpg", lastPdfLayout: "single" });
   await popup.close();
 });

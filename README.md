@@ -6,7 +6,7 @@
 
 A Chrome extension (Manifest V3) that captures screenshots of the page you're
 looking at — without leaving the browser. Click the toolbar icon, pick a
-mode, and a PNG lands in your downloads.
+mode and a format, and a PNG, JPG, or PDF lands in your downloads.
 
 **Four capture modes:**
 
@@ -19,6 +19,10 @@ mode, and a PNG lands in your downloads.
 - **Device sizes** — the same page re-rendered and captured at mobile
   (390px), tablet (820px), and desktop (1440px) widths, genuinely reflowed,
   not scaled
+
+**Three output formats:** PNG (lossless), JPG, or PDF. PDFs embed the actual
+capture, and device-size captures can produce either one three-page PDF or a
+separate file per size.
 
 Product page: **[iokig.com/page-snap](https://www.iokig.com/page-snap)**
 
@@ -40,9 +44,10 @@ To run it from source in the meantime:
 ## Use
 
 - Click the extension icon to open the panel
-- Pick a mode and hit **Capture**
+- Pick a mode, pick a format (PNG, JPG, or PDF), and hit **Capture**
+- For PDF + device sizes, choose one three-page file or one file per size
 - Files download automatically as
-  `<site>--<mode>--<timestamp>.png` (device captures add the preset name) —
+  `<site>--<mode>--<timestamp>.<ext>` (device captures add the preset name) —
   no save dialogs
 - **Pick an element** closes the panel and hands you a highlighter: hover any
   element, click to capture it, or press <kbd>Esc</kbd> to cancel. A ✓ badge

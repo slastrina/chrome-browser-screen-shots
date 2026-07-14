@@ -94,6 +94,43 @@ h1 {
   font-size: 12px;
 }
 
+.row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.field[hidden] {
+  display: none;
+}
+
+.field {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.field-name {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 550;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.field select {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  font-size: 12.5px;
+}
+
 #capture {
   width: 100%;
   padding: 9px 0;
@@ -124,4 +161,23 @@ h1 {
 
 #status.error {
   color: var(--error);
+}
+
+footer {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
+
+footer a {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+}
+
+footer a:hover {
+  color: var(--accent);
+  text-decoration: underline;
 }

@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "name": "Page Snap — Full Page Screenshot & Element Capture",
   "short_name": "Page Snap",
-  "version": "1.0.0",
-  "description": "Capture the visible viewport, the entire page, a single element, or mobile/tablet/desktop sizes. One click, PNG in your downloads.",
+  "version": "1.1.0",
+  "description": "Capture the visible viewport, the entire page, an element, or mobile/tablet/desktop sizes. Save as PNG, JPG, or PDF in one click.",
   "permissions": ["activeTab", "debugger", "downloads", "scripting", "storage"],
   "action": {
     "default_popup": "popup.html",
