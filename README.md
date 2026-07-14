@@ -43,9 +43,10 @@ Product page: **[iokig.com/page-snap](https://www.iokig.com/page-snap)**
 
 ## Install
 
-Coming soon to the **Chrome Web Store**.
+Install it free from the
+**[Chrome Web Store](https://chromewebstore.google.com/detail/nhpiphipkjcalamibabmngaghfcjhbch)**.
 
-To run it from source in the meantime:
+To run it from source for development:
 
 1. `npm install && npm run build`
 2. Open `chrome://extensions`
