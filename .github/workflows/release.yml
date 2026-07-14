@@ -1,26 +1,27 @@
-name: Package extension on release
+name: Build and release on tag
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - "v*"
 
 permissions:
   contents: write
 
 jobs:
-  package:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Verify manifest version matches release tag
+      - name: Verify manifest version matches tag
         run: |
-          tag="${{ github.event.release.tag_name }}"
+          tag="${GITHUB_REF_NAME}"
           tag_version="${tag#v}"
           manifest_version="$(jq -r '.version' manifest.json)"
-          echo "release tag: $tag_version | manifest version: $manifest_version"
+          echo "tag: $tag_version | manifest version: $manifest_version"
           if [ "$tag_version" != "$manifest_version" ]; then
-            echo "::error::Release tag ($tag_version) does not match manifest version ($manifest_version). Bump \"version\" in manifest.json to match the tag."
+            echo "::error::Tag ($tag_version) does not match manifest version ($manifest_version). Bump \"version\" in manifest.json to match the tag."
             exit 1
           fi
 
@@ -33,11 +34,12 @@ jobs:
         run: |
           npm ci
           npm test
+          npm run lint
           npm run build
 
       - name: Build extension zip
         run: |
-          zip_name="page-snap-${{ github.event.release.tag_name }}.zip"
+          zip_name="page-snap-${GITHUB_REF_NAME}.zip"
           echo "ZIP_NAME=$zip_name" >> "$GITHUB_ENV"
           # Package only the files Chrome needs — no store assets, docs, or repo meta.
           (cd dist && zip -r "../$zip_name" \
@@ -54,7 +56,12 @@ jobs:
           echo "--- package contents ---"
           unzip -l "$zip_name"
 
-      - name: Attach zip to release
+      - name: Create release with zip attached
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload "${{ github.event.release.tag_name }}" "$ZIP_NAME" --clobber
+        run: |
+          # If the tag arrived via a UI-created release, attach to it instead.
+          gh release create "${GITHUB_REF_NAME}" "$ZIP_NAME" \
+            --title "Page Snap ${GITHUB_REF_NAME}" \
+            --generate-notes \
+          || gh release upload "${GITHUB_REF_NAME}" "$ZIP_NAME" --clobber
