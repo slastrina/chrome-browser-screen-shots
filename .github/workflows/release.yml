@@ -41,18 +41,9 @@ jobs:
         run: |
           zip_name="page-snap-${GITHUB_REF_NAME}.zip"
           echo "ZIP_NAME=$zip_name" >> "$GITHUB_ENV"
-          # Package only the files Chrome needs — no store assets, docs, or repo meta.
-          (cd dist && zip -r "../$zip_name" \
-            manifest.json \
-            background.js \
-            picker.js \
-            popup.html \
-            popup.css \
-            popup.js \
-            icon/icon16.png \
-            icon/icon32.png \
-            icon/icon48.png \
-            icon/icon128.png)
+          # dist/ holds exactly the runtime files; zip it all so new entry
+          # points can never be silently left out of the package.
+          (cd dist && zip -r "../$zip_name" . -x "icon/icon.svg")
           echo "--- package contents ---"
           unzip -l "$zip_name"
 
