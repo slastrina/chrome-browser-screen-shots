@@ -14,5 +14,5 @@
     "noEmit": true,
     "skipLibCheck": true
   },
-  "include": ["src", "tests", "e2e", "build.mjs", "eslint.config.mjs", "playwright.config.ts"]
+  "include": ["src", "tests", "e2e", "build.mjs", "eslint.config.mjs", "playwright.config.ts", "vitest.config.ts"]
 }
